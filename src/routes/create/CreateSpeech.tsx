@@ -19,6 +19,7 @@ const DEFAULT_SPEECH: Speech = {
 
 export interface ICreateSpeechProps {
     globalContext: IGlobalContext;
+    match: {params: {id : string}};
 }
 
 export interface ICreateSpeechState  {
@@ -121,7 +122,7 @@ class CreateSpeech extends React.Component<ICreateSpeechProps, ICreateSpeechStat
             } else {
                 speechService.createSpeech(speech).then(response => {
                     toast.success('Speech saved successfully!');
-                    this.setState({isPublishing: false});
+                    this.setState({isPublishing: false, publishedSpeechId: response.id});
                 }).catch(error => {
                     toast.error(error.toString());
                 });
@@ -129,8 +130,31 @@ class CreateSpeech extends React.Component<ICreateSpeechProps, ICreateSpeechStat
         });
     }
 
+    setSpeech(id: string) {
+        speechService.getSpeechById(id).then(response => {
+            this.setState({
+                speech: response,
+                speechContent: RichTextEditor.createValueFromString(response.content, 'html')
+            });
+        });
+    }
+
+    componentDidMount() {
+        this.setSpeech(this.props.match.params.id);
+    }
+
+    componentDidUpdate(prevProps: ICreateSpeechProps) {
+        if (prevProps.match.params.id !== this.props.match.params.id) {
+            this.setSpeech(this.props.match.params.id);
+        }
+    }
+
     render() {
         const {speech, tagToAdd, errorsInForm, isPublishing, publishedSpeechId, speechContent} = this.state;
+
+        if (publishedSpeechId) {
+            return(<Redirect to={'/view/' + publishedSpeechId} />);
+        }
 
         return(
             <Container className='pt-10 pb-10'>

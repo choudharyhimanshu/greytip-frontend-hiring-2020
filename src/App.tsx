@@ -82,6 +82,7 @@ class App extends React.Component<{}, IAppState> {
                         <Switch>
                             <ProtectedRoute exact path='/' component={Home} />
                             <ProtectedRoute exact path='/create' component={CreateSpeech} />
+                            <ProtectedRoute exact path='/edit/:id' component={CreateSpeech} />
                             <ProtectedRoute exact path='/view/:id' component={ViewSpeech} />
                             <Route exact path='/login' render={(props) => <Login {...props} onLogin={this.authorize}/>} />
 

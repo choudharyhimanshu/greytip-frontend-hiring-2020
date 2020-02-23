@@ -19,7 +19,13 @@ class SpeechService {
             const store = localStorage.getItem(this.STORE_KEY);
             let speeches: Speech[] = store ? JSON.parse(store) : [DUMMY_SPEECH];
 
-            speech.id = uuid();
+            if (!speech.id) {
+                speech.id = uuid();
+            } else {
+                const speechIndex = speeches.findIndex(s => s.id === speech.id);
+                speeches.splice(speechIndex, 1);
+            }
+
             speeches.push(speech);
             localStorage.setItem(this.STORE_KEY, JSON.stringify(speeches));
 

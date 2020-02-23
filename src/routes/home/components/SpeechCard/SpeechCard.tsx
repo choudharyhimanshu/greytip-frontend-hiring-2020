@@ -3,6 +3,7 @@ import Moment from 'moment';
 import {Card, Icon, Label} from 'semantic-ui-react';
 
 import {Speech} from '../../../../shared/models/Speech';
+import { Link } from 'react-router-dom';
 
 export interface ISpeechesCardProps {
     speech: Speech;
@@ -28,12 +29,15 @@ class SpeechCard extends React.Component<ISpeechesCardProps> {
                         </span>
                     </Card.Meta>
                 </Card.Content>
-                <Card.Content extra>
+                <Card.Description className='pl-2'>
                     {
                         speech.tags.map(tag =>
                             <Label key={tag} className='mb-1'>{tag}</Label>
                         )
                     }
+                </Card.Description>
+                <Card.Content extra>
+                    <Link to={'edit/' + speech.id}>Edit</Link>
                 </Card.Content>
             </Card>
         );

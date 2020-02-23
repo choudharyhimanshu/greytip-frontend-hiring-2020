@@ -8,7 +8,7 @@ import Moment from 'moment';
 
 export interface IViewProps {
     globalContext: IGlobalContext;
-    match: {params: {id : string}}
+    match: {params: {id : string}};
 }
 
 export interface IViewState {
