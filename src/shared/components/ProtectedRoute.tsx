@@ -18,7 +18,7 @@ class ProtectedRoute extends React.Component<IProtectedRouteProps> {
         const {globalContext} = this.props;
 
         return(
-            globalContext.userInfo ? <Route component={this.props.component} /> : <Redirect to='/login'/>
+            globalContext.userInfo ? <Route component={this.props.component} {...this.props} /> : <Redirect to='/login'/>
         );
     }
 }

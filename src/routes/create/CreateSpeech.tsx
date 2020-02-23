@@ -2,13 +2,16 @@ import * as React from 'react';
 import {Redirect} from 'react-router';
 import {toast} from 'react-toastify';
 import {Breadcrumb, Button, Container, Form, Grid, Icon, Label, List, Message} from 'semantic-ui-react';
+import RichTextEditor, { EditorValue } from 'react-rte';
 
 import {Speech} from '../../shared/models/Speech';
 import {IGlobalContext, withGlobalContext} from '../../shared/contexts/global.context';
+import speechService from '../../shared/services/speech.service';
 
 const DEFAULT_SPEECH: Speech = {
     id: '',
     title: '',
+    content: '',
     tags: [...[]],
     createdOn: new Date(),
     createdBy: '',
@@ -21,6 +24,7 @@ export interface ICreateSpeechProps {
 export interface ICreateSpeechState  {
     speech: Speech;
     tagToAdd: string;
+    speechContent: EditorValue;
     errorsInForm: string[];
     isPublishing: boolean;
     publishedSpeechId?: string;
@@ -41,20 +45,16 @@ class CreateSpeech extends React.Component<ICreateSpeechProps, ICreateSpeechStat
             speech: speech,
             tagToAdd: '',
             errorsInForm: [],
-            isPublishing: false
+            isPublishing: false,
+            speechContent: RichTextEditor.createEmptyValue()
         };
 
         this.handleTitleInput = this.handleTitleInput.bind(this);
         this.handleTagInput = this.handleTagInput.bind(this);
         this.handleTagAddition = this.handleTagAddition.bind(this);
         this.handleTagRemoval = this.handleTagRemoval.bind(this);
-        this.handleQuestionTypeChange = this.handleQuestionTypeChange.bind(this);
-        this.handleQuestionTextChange = this.handleQuestionTextChange.bind(this);
-        this.handleQuestionOptionAddition = this.handleQuestionOptionAddition.bind(this);
-        this.handleQuestionOptionRemoval = this.handleQuestionOptionRemoval.bind(this);
-        this.handleQuestionAdditionAction = this.handleQuestionAdditionAction.bind(this);
-        this.handleQuestionRemovalAction = this.handleQuestionRemovalAction.bind(this);
         this.handleSpeechPublishAction = this.handleSpeechPublishAction.bind(this);
+        this.handleSpeechContentChange = this.handleSpeechContentChange.bind(this);
     }
 
     handleTitleInput(value: string) {
@@ -92,47 +92,9 @@ class CreateSpeech extends React.Component<ICreateSpeechProps, ICreateSpeechStat
         });
     }
 
-    handleQuestionTypeChange(questionIndex: number, value: string) {
-        this.setState(prevState => {
-            const speech = prevState.speech;
-            return {speech: speech};
-        });
-    }
-
-    handleQuestionTextChange(questionIndex: number, value: string) {
-        this.setState(prevState => {
-            const speech = prevState.speech;
-            return {speech: speech};
-        });
-    }
-
-    handleQuestionOptionAddition(questionIndex: number, value: string) {
-        if (value) {
-            this.setState(prevState => {
-                const speech = prevState.speech;
-                return {speech: speech};
-            });
-        }
-    }
-
-    handleQuestionOptionRemoval(questionIndex: number, optionIndex: number) {
-        this.setState(prevState => {
-            const speech = prevState.speech;
-            return {speech: speech};
-        });
-    }
-
-    handleQuestionAdditionAction() {
-        this.setState(prevState => {
-            const speech = prevState.speech;
-            return {speech: speech};
-        });
-    }
-
-    handleQuestionRemovalAction(index: number) {
-        this.setState(prevState => {
-            const speech = prevState.speech;
-            return {speech: speech};
+    handleSpeechContentChange(value: EditorValue) {
+        this.setState({
+            speechContent: value
         });
     }
 
@@ -141,10 +103,14 @@ class CreateSpeech extends React.Component<ICreateSpeechProps, ICreateSpeechStat
             isPublishing: true,
             errorsInForm: []
         }, () => {
-            const {speech: speech, errorsInForm}= this.state;
+            const {speech: speech, errorsInForm, speechContent}= this.state;
 
             if (!speech.title) {
                 errorsInForm.push('A title is required for the speech');
+            }
+
+            if (speechContent) {
+                speech.content = speechContent.toString('html');
             }
 
             if (errorsInForm.length > 0) {
@@ -153,13 +119,18 @@ class CreateSpeech extends React.Component<ICreateSpeechProps, ICreateSpeechStat
                     errorsInForm
                 });
             } else {
-                // TODO
+                speechService.createSpeech(speech).then(response => {
+                    toast.success('Speech saved successfully!');
+                    this.setState({isPublishing: false});
+                }).catch(error => {
+                    toast.error(error.toString());
+                });
             }
         });
     }
 
     render() {
-        const {speech: speech, tagToAdd, errorsInForm, isPublishing, publishedSpeechId: publishedSpeechId} = this.state;
+        const {speech, tagToAdd, errorsInForm, isPublishing, publishedSpeechId, speechContent} = this.state;
 
         return(
             <Container className='pt-10 pb-10'>
@@ -193,6 +164,12 @@ class CreateSpeech extends React.Component<ICreateSpeechProps, ICreateSpeechStat
                                     </div>
                                     <Form.Input width={6} size='mini' action={{ icon: 'add', onClick: () => this.handleTagAddition(tagToAdd) }} placeholder='Add a tag'
                                         value={tagToAdd} onChange={(event) => this.handleTagInput(event.target.value)} />
+                                </Form.Field>
+                                <Form.Field className='pb-3'>
+                                    <div className='ui big fluid input'>
+                                        <RichTextEditor className='w-full min-h-200px' placeholder='Give a title to your speech..'
+                                            value={speechContent} onChange={this.handleSpeechContentChange}/>
+                                    </div>
                                 </Form.Field>
                             </div>
                             {

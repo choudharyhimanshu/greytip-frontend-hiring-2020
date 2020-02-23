@@ -3,6 +3,7 @@
 .pull-left { float: left }
 
 .w-full { width: 100%; }
+.min-h-200px { min-height: 200px; }
 
 .pointer-cursor { cursor: pointer; }
 

@@ -5,6 +5,7 @@ import {Button, Grid, Header, Icon, Input, Loader} from 'semantic-ui-react';
 import SpeechCard from '../SpeechCard/SpeechCard';
 import {Speech} from '../../../../shared/models/Speech';
 import {IGlobalContext, withGlobalContext} from '../../../../shared/contexts/global.context';
+import speechService from '../../../../shared/services/speech.service';
 
 export interface ISpeechesPaneProps {
     getMySpeeches: boolean;
@@ -40,7 +41,15 @@ class SpeechesPane extends React.Component<ISpeechesPaneProps, ISpeechesPaneStat
                 toast.error('User session not found.');
                 this.setState({isLoading: false});
             } else {
-                // TODO
+                speechService.getSpeeches(this.props.getMySpeeches ? username : undefined).then(response => {
+                    this.allSpeeches = response;
+                    this.setState({
+                        isLoading: false,
+                        speeches: response
+                    });
+                }).catch(error => {
+                    toast.error(error.toString());
+                });
             }
         });
     }
@@ -49,6 +58,7 @@ class SpeechesPane extends React.Component<ISpeechesPaneProps, ISpeechesPaneStat
         const filteredSpeeches = this.allSpeeches.filter(speech => {
             return (!value ||
                 speech.title.toLowerCase().includes(value.toLowerCase()) ||
+                speech.content.toLowerCase().includes(value.toLowerCase()) ||
                 speech.createdBy.toLowerCase().includes(value.toLowerCase()) ||
                 speech.tags.join(' ').toLowerCase().includes(value.toLowerCase())
             );

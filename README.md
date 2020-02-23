@@ -15,7 +15,7 @@ A simple web application to create & share a public speech and to view in other 
 
     Config file path: `.circleci/config.yml`
 
-    Circle CI : https://circleci.com/gh/choudharyhimanshu/speech-repo-ui
+    Circle CI : https://circleci.com/gh/choudharyhimanshu/greytip-frontend-hiring-2020
 
 - [CD] To be done!
 
